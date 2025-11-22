@@ -12,7 +12,7 @@ void setup() {
 }
 
 void draw() {
-  background(0);
+  background(100);
   fill(r, g, b);
   noStroke();
   
@@ -32,6 +32,8 @@ void draw() {
       int id = person.getInt("id");
       float x = person.getFloat("x");
       float y = person.getFloat("y");
+      
+      x = 1 - x;
       
       if (peopleMap.containsKey(id)) {
         Person pers = peopleMap.get(id);

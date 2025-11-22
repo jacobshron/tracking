@@ -2,7 +2,7 @@ public class Person {
   int id;
   float x, y;
   float pixelX, pixelY;
-  float smooth = 0.1;
+  float smooth = 0.2;
   float threshold = 8;
   
   ArrayList<PVector> history = new ArrayList<PVector>();
@@ -10,6 +10,8 @@ public class Person {
   
   Person(int id, float x, float y) {
     this.id = id;
+    this.pixelX = x * width;
+    this.pixelY = y * height;
     update(x, y);
   }
   
@@ -17,8 +19,8 @@ public class Person {
     this.x = x;
     this.y = y;
     
-    pixelX = x * width;
-    pixelY = y * height;
+//    pixelX = x * width;
+//    pixelY = y * height;
     
     float targetX = x * width;
     float targetY = y * height;
