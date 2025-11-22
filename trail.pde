@@ -1,51 +1,54 @@
 float r = 0; float g = 255; float b = 200;
-int trailLen = 20;
-int currentShape = 0;
-float[] shapeX = new float[trailLen];
-float[] shapeY = new float[trailLen];
-float[] shapeA = new float[trailLen];
-float[] shapeSize = new float[trailLen];
-String[] lines;
 
-void setup() {  size(1280, 720);
+HashMap<Integer, Person> peopleMap = new HashMap<Integer, Person>();
+int pplCount = 0;
+
+JSONObject json;
+
+void setup() {  
+  size(1280, 720);
   smooth();
-  frameRate(240);
+  frameRate(30);
 }
 
 void draw() {
-  background(50);
+  background(0);
   fill(r, g, b);
   noStroke();
-  noCursor();
   
-  lines = loadStrings("out.txt");
+  try {
+    json = loadJSONObject("people.json");
+  } catch (Exception e) {
+    println("Skipping fram: JSON not ready");
+    return;
+  }
+  JSONArray arr = json.getJSONArray("people");
   
-  int pixelX = -20;
-  int pixelY = -20;
+  HashMap<Integer, Person> newMap = new HashMap<Integer, Person>();
   
-  if (lines.length != 0) {
-    pixelX = Integer.parseInt(lines[0]);
-    pixelY = Integer.parseInt(lines[1]);
+  for (int i = 0; i < arr.size(); i++) {
+      JSONObject person = arr.getJSONObject(i);
+      
+      int id = person.getInt("id");
+      float x = person.getFloat("x");
+      float y = person.getFloat("y");
+      
+      if (peopleMap.containsKey(id)) {
+        Person pers = peopleMap.get(id);
+        pers.update(x, y);
+        newMap.put(id, pers);
+      } else {
+        // Create new person
+        Person pers = new Person(id, x, y);
+        newMap.put(id, pers);
+      }
   }
   
-  text(pixelX + " " + pixelY, 10, 10);
+  peopleMap = newMap;
   
-  shapeX[currentShape] = pixelX;
-  shapeY[currentShape] = pixelY;
-  shapeA[currentShape] = 255;
-  shapeSize[currentShape] = 20;
-
-  // ellipse(mouseX, mouseY, shapeSize[currentShape], shapeSize[currentShape]);
-
-  for (int i = 0; i<trailLen; i++) {
-    fill(r, g, b, shapeA[i]);
-    ellipse(shapeX[i], shapeY[i], shapeSize[i], shapeSize[i]);
-    shapeA[i] -= 255/trailLen;
-    shapeSize[i] -= 1;
+  for (Person p : peopleMap.values()) {
+    p.display();
   }
-
-  currentShape++;
-  currentShape %= trailLen;
 
   if (mouseX < 5 || mouseX > width || mouseY < 0 || mouseY > height) {
     r = random(255);

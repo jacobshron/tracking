@@ -6,6 +6,7 @@ import os
 import numpy as np
 import cv2
 import hailo
+import json
 
 from hailo_apps.hailo_app_python.core.common.buffer_utils import get_caps_from_pad, get_numpy_from_buffer
 from hailo_apps.hailo_app_python.core.gstreamer.gstreamer_app import app_callback_class
@@ -54,6 +55,8 @@ def app_callback(pad, info, user_data):
 
     # Parse the detections
     detection_count = 0
+    people = []
+    
     for detection in detections:
         label = detection.get_label()
         bbox = detection.get_bbox()
@@ -76,12 +79,20 @@ def app_callback(pad, info, user_data):
             pixel_x = int(x_center * width)
             pixel_y = int(y_center *height)
             
+            person = {
+                "id": track_id,
+                "x": x_center,
+                "y": y_center
+            }
+            people.append(person)
+            detection_count += 1
+            
             # print(f"{width} {height} {pixel_x} {pixel_y}", flush=True)
-            with open('out.txt', 'w') as file_object:
-                file_object.write(f"{pixel_x}\n{pixel_y}")
+    with open('people.json', 'w') as outfile:
+        json.dump({"people": people}, outfile, indent=4)
 
             
-            detection_count += 1
+            
     if user_data.use_frame:
         # Note: using imshow will not work here, as the callback function is not running in the main thread
         # Let's print the detection count to the frame
