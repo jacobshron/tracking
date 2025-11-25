@@ -1,4 +1,5 @@
 float r = 0; float g = 255; float b = 200;
+int effectId = 1;
 
 HashMap<Integer, Person> peopleMap = new HashMap<Integer, Person>();
 int pplCount = 0;
@@ -12,14 +13,19 @@ void setup() {
 }
 
 void draw() {
-  background(100);
+  background(0);
   fill(r, g, b);
   noStroke();
+  
+  stroke(255);
+  strokeWeight(8);
+  noFill();
+  rect(10, 10, width-20, height-20);
   
   try {
     json = loadJSONObject("people.json");
   } catch (Exception e) {
-    println("Skipping fram: JSON not ready");
+    // println("Skipping frame: JSON not ready");
     return;
   }
   JSONArray arr = json.getJSONArray("people");
@@ -58,4 +64,11 @@ void draw() {
     b = random(255);
   }
 
+}
+
+void keyTyped() {
+  if ((int)key >= 48 && (int)key <= 57) {
+    effectId = Integer.valueOf(key) - 48;
+    println(effectId);
+  }
 }
