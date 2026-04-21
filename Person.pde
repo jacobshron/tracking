@@ -77,6 +77,8 @@ public class Person {
          centerY = pixelY;
        }
        break;
+     
+     
        
      default:
        effectId = 1;

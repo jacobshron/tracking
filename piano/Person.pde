@@ -22,7 +22,7 @@ public class Person {
 //    pixelX = x * width;
 //    pixelY = y * height;
     
-    float targetX = (1-x) * width;
+    float targetX = x * width;
     float targetY = y * height;
     
     if (abs(pixelX - targetX) < threshold && abs(pixelY - targetY) < threshold) {
@@ -42,7 +42,7 @@ public class Person {
   void display() {  
      noStroke();
      fill(255);
-     ellipse(pixelX, pixelY-150, 240, 240);
+     ellipse(pixelX, pixelY-150, 20, 20);
    }
     
   float getPixelX() {

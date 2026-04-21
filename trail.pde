@@ -58,12 +58,6 @@ void draw() {
     p.display();
   }
 
-  if (mouseX < 5 || mouseX > width || mouseY < 0 || mouseY > height) {
-    r = random(255);
-    g = random(255);
-    b = random(255);
-  }
-
 }
 
 void keyTyped() {
