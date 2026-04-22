@@ -4,6 +4,9 @@ import java.io.*;
 String[] solfegeNames = {"Do", "Re", "Mi", "Fa", "Sol", "La", "Si", "Do'"};
 float[]  frequencies  = {261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25};
 
+int lastJSONRead = 0;
+int JSON_INTERVAL = 50;
+
 int[][] colors = {
   {80,  78, 180},
   {30, 140, 120},
@@ -27,6 +30,7 @@ int[]     lastLaneTime = new int[MAX_PEOPLE];  // millis() when we last entered 
 HashMap<Integer, Person> people = new HashMap<Integer, Person>();
 // Map from track ID -> oscillator slot index
 HashMap<Integer, Integer> idToSlot = new HashMap<Integer, Integer>();
+HashMap<Integer, Integer> slotToId = new HashMap<Integer, Integer>();
 boolean[] slotInUse = new boolean[MAX_PEOPLE];
 
 // Tuning
@@ -56,35 +60,39 @@ void setup() {
   
   textAlign(CENTER, CENTER);
   smooth();
-  
+  frameRate(15);
 }
 
 void draw() {
   background(18, 18, 22);
   laneWidth  = width / 8;
   
-  loadPeopleFromJSON();
+  if (millis() - lastJSONRead > JSON_INTERVAL) {
+    loadPeopleFromJSON();
+    lastJSONRead = millis();
+  }
   
   for (int slot = 0; slot < MAX_PEOPLE; slot++) {
      
     if (!slotInUse[slot]) continue;
     
     // Find the person assigned to this slot
-    int assignedId = -1;
-    for (int id : idToSlot.keySet()) {
-      if (idToSlot.get(id) == slot) { assignedId = id; break; }
-    }
-    if (assignedId == -1 || !people.containsKey(assignedId)) continue;
+    int assignedId = slotToId.get(slot);
+    if (!people.containsKey(assignedId)) continue;
 
     Person p = people.get(assignedId);
     int hoveredLane = constrain((int)(p.pixelX / laneWidth), 0, 7);
 
+    float volumeRatio = 1.0 - (p.pixelY / height);
+
     if (hoveredLane != activeLane[slot]) {
       activeLane[slot]   = hoveredLane;
       lastLaneTime[slot] = millis();
-      targetAmp[slot]    = MAX_AMP;
+      targetAmp[slot]    = MAX_AMP * volumeRatio;
       oscillators[slot].freq(frequencies[activeLane[slot]]);
     }
+
+    targetAmp[slot] = MAX_AMP * volumeRatio;
 
     if (millis() - lastLaneTime[slot] > SUSTAIN_MS) {
       targetAmp[slot] = 0.0;
@@ -179,6 +187,7 @@ void loadPeopleFromJSON() {
       if (slot != -1) {
         people.put(id, new Person(id, x, y));
         idToSlot.put(id, slot);
+        slotToId.put(slot, id);
         slotInUse[slot] = true;
         activeLane[slot] = -1;
       }
@@ -192,6 +201,7 @@ void loadPeopleFromJSON() {
   }
   for (int id : toRemove) {
     int slot = idToSlot.get(id);
+    slotToId.remove(slot);
     slotInUse[slot]  = false;
     targetAmp[slot]  = 0.0;
     activeLane[slot] = -1;

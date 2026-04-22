@@ -7,6 +7,7 @@ import numpy as np
 import cv2
 import hailo
 import json
+import time
 
 from hailo_apps.hailo_app_python.core.common.buffer_utils import get_caps_from_pad, get_numpy_from_buffer
 from hailo_apps.hailo_app_python.core.gstreamer.gstreamer_app import app_callback_class
@@ -28,8 +29,18 @@ class user_app_callback_class(app_callback_class):
 # User-defined callback function
 # -----------------------------------------------------------------------------------------------
 
+last_frame_time = 0
+FRAME_INTERVAL = 1.0 / 15
+
 # This is the callback function that will be called when data is available from the pipeline
 def app_callback(pad, info, user_data):
+    global last_frame_time
+    
+    now = time.time()
+    if now - last_frame_time < FRAME_INTERVAL:
+        return Gst.PadProbeReturn.OK
+    last_frame_time = now
+    
     # Get the GstBuffer from the probe info
     buffer = info.get_buffer()
     # Check if the buffer is valid
