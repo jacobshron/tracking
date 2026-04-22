@@ -40,6 +40,7 @@ String JSON_PATH = "people.json";
 
 void setup() {
   size(800, 500);
+  surface.setResizable(true);
   laneWidth  = width / 8;
   
   for (int i = 0; i < MAX_PEOPLE; i++) {
