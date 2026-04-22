@@ -61,6 +61,7 @@ void setup() {
 
 void draw() {
   background(18, 18, 22);
+  laneWidth  = width / 8;
   
   loadPeopleFromJSON();
   
